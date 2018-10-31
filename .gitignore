@@ -1,4 +1,4 @@
-data/
+data/mnist/MNIST/
 logdir/
 
 # Created by https://www.gitignore.io/api/python
