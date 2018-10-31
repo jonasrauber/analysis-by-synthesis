@@ -616,7 +616,7 @@ def get_args():
                         help='calculates the loss without the custom cuda kernel')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--num-workers', type=int, default=1, metavar='N',
+    parser.add_argument('--num-workers', type=int, default=4, metavar='N',
                         help='number of workers to load data (default: 1)')
 
     args = parser.parse_args()
