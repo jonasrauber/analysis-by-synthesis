@@ -2,6 +2,7 @@
 from os.path import join
 import torch
 from torch import optim
+import torchvision
 from tensorboardX import SummaryWriter
 
 from analysis_by_synthesis.datasets import get_dataset, get_dataset_loaders
@@ -14,6 +15,8 @@ from analysis_by_synthesis.sample import sample
 
 
 def main():
+    assert not hasattr(torchvision.datasets.folder, 'find_classes'), 'torchvision master required'
+
     args = get_args()
 
     if args.test_only:
