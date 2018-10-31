@@ -1,5 +1,8 @@
 import torch
 
+from .merging_sampler import MergingSampler  # noqa: F401
+from .auto_batch import auto_batch  # noqa: F401
+
 
 def count_correct(predictions, labels):
     assert predictions.dim() == 2

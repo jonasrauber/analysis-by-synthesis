@@ -4,7 +4,7 @@ from torch import nn, optim
 
 from .loss_functions import samplewise_loss_function
 from .custom_kernel import samplewise_loss_function as pairwise_loss_function
-from .auto_batch import auto_batch
+from .utils import auto_batch
 
 
 class RobustInference(nn.Module):

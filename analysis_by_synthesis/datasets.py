@@ -3,7 +3,7 @@ import numpy as np
 from torch.utils.data import DataLoader, SubsetRandomSampler
 from torchvision import datasets, transforms
 
-from .merging_sampler import MergingSampler
+from .utils import MergingSampler
 
 
 def create_balanced_sampler(dataset):
