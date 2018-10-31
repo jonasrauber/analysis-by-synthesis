@@ -1,2 +1,3 @@
-# analysis-by-synthesis
-Analysis by Synthesis — reimplemented
+# Analysis by Synthesis
+
+This is a complete reimplementation of our Analysis by Synthesis model.
