@@ -557,7 +557,7 @@ def sample(model, device, step, writer):
         writer.add_image(f'samples', grid, step)
 
 
-def main():
+def get_args():
     parser = argparse.ArgumentParser(description='Analysis by Synthesis Model')
 
     parser.add_argument('--test-only', action='store_true', default=False,
@@ -620,6 +620,11 @@ def main():
                         help='number of workers to load data (default: 1)')
 
     args = parser.parse_args()
+    return args
+
+
+def main():
+    args = get_args()
 
     if args.test_only:
         args.initial_evaluation = True
