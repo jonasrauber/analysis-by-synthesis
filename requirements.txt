@@ -1,0 +1,5 @@
+torch>=0.4.1
+Augmentor>=0.2.3
+tqdm>=4.26.0
+tensorboardX>=1.4
+cupy-cuda90>=5.0.0
