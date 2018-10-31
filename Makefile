@@ -8,3 +8,6 @@ install-dev:
 codecheck:
 	-flake8 --ignore E402,W503,W504
 	-mypy --python-version 3.6 --ignore-missing-imports --warn-unused-ignores --warn-unused-configs --warn-return-any --warn-redundant-casts *.py
+
+test:
+	./main.py --test-only --load ./data/weights/mnist_abs.pth
