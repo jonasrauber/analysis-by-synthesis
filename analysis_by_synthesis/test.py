@@ -41,7 +41,7 @@ def test(model, args, device, test_loader, step, writer=None, max_batches=None):
 
     loss /= N
     accuracy = 100 * correct / N
-    print(f'====> Test set: Average loss: {loss:.4f}, Accuracy: {correct}/{N} ({accuracy:.0f}%)\n')
+    print(f'====> Test set: Average loss: {loss:.4f}, Accuracy: {correct}/{N} ({accuracy:.0f}%) {suffix[1:]}\n')
 
     if writer is not None:
         writer.add_scalar(f'test/loss{suffix}', loss, step)
