@@ -32,7 +32,7 @@ def test(model, args, device, test_loader, step, writer=None, max_batches=None):
                     shape = (-1,) + recs.size()[2:]
                     grid = torch.cat([data[:n], recs[:, :n].reshape(shape)])
                     grid = make_grid(grid, nrow=n)
-                    writer.add_image(f'test/reconstructions{suffix}', grid, step)
+                    writer.add_image(f'reconstructions/test{suffix}', grid, step)
 
                 if i == max_batches:
                     # limit testing to a subset by passing max_batches
@@ -44,5 +44,5 @@ def test(model, args, device, test_loader, step, writer=None, max_batches=None):
     print(f'====> Test set: Average loss: {loss:.4f}, Accuracy: {correct}/{N} ({accuracy:.0f}%) {suffix[1:]}\n')
 
     if writer is not None:
-        writer.add_scalar(f'test/loss{suffix}', loss, step)
-        writer.add_scalar(f'test/accuracy{suffix}', accuracy, step)
+        writer.add_scalar(f'loss/test{suffix}', loss, step)
+        writer.add_scalar(f'accuracy/test{suffix}', accuracy, step)
