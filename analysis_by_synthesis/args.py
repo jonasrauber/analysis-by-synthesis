@@ -56,10 +56,8 @@ def get_args():
     # control performance
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
-    parser.add_argument('--no-custom-kernel', action='store_true', default=False,
-                        help='calculates the loss without the custom cuda kernel')
-    parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
-                        help='input batch size for testing (default: 1000)')
+    parser.add_argument('--test-batch-size', type=int, default=10000, metavar='N',
+                        help='input batch size for testing (default: 10000)')
     parser.add_argument('--num-workers', type=int, default=4, metavar='N',
                         help='number of workers to load data (default: 4)')
 

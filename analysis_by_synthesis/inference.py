@@ -3,15 +3,13 @@ import torch
 from torch import nn, optim
 
 from .loss_functions import samplewise_loss_function
-from .custom_kernel import samplewise_loss_function as pairwise_loss_function
-from .utils import auto_batch
 
 
 class RobustInference(nn.Module):
     """Takes a trained ABS model and replaces its variational inference
     with robust inference."""
 
-    def __init__(self, abs_model, device, n_samples, n_iterations, *, fraction_to_dismiss, lr, radius, custom_kernel):
+    def __init__(self, abs_model, device, n_samples, n_iterations, *, fraction_to_dismiss, lr, radius):
         super().__init__()
 
         self.abs = abs_model
@@ -19,7 +17,6 @@ class RobustInference(nn.Module):
         self.lr = lr
         self.beta = abs_model.beta
         self.radius = radius
-        self.custom_kernel = custom_kernel
         self.name = f'{n_samples}_{n_iterations}'
 
         # create a set of random latents that we will reuse
@@ -81,26 +78,6 @@ class RobustInference(nn.Module):
         """This performs robust inference by finding the optimal latents for
         each VAE using optimization rather than the encoder network."""
 
-        if self.custom_kernel:
-            samplewise_loss_function_b = pairwise_loss_function
-        else:
-            # calculating the loss for all pairs of inputs and reconstructions
-            # can be extremely memory consuming; batch_size * n_samples * input_size
-            # -> we therefore wrap our loss function with auto_batch
-
-            # determine a good batch size of the inputs given the number of
-            # reconstructions (e.g. 80 or 8000)
-            def get_batch_size():
-                GiB = 2**30
-                memory = 4 * GiB
-                n_recs = len(self.z)
-                input_size = int(np.prod(x.shape[-3:]))
-                bytes_per_float = 4
-                batch_size = int(memory / bytes_per_float / input_size / n_recs)
-                return batch_size
-
-            samplewise_loss_function_b = auto_batch(samplewise_loss_function, get_batch_size(), n_args=1)
-
         with torch.no_grad():
             losses = []
             recs = []
@@ -114,7 +91,7 @@ class RobustInference(nn.Module):
                 # determine the best latents for each sample in x given this VAE
                 # -> add a second batch dimension to x that will be broadcasted to the number of reconstructions
                 # -> add a second batch dimension to rec that will be broadcasted to the number of inputs in x
-                loss = samplewise_loss_function_b(x.unsqueeze(1), rec.unsqueeze(0), self.mu, self.logvar, self.beta)
+                loss = samplewise_loss_function(x.unsqueeze(1), rec.unsqueeze(0), self.mu, self.logvar, self.beta)
                 assert loss.dim() == 2
                 # take min over samples in z
                 loss, indices = loss.min(dim=1)
@@ -151,12 +128,11 @@ class RobustInference(nn.Module):
             for j in range(self.gradient_descent_iterations):
                 optimizer.zero_grad()
 
-                loss = 0
                 for vae, zi in zip(self.vaes, z):
                     rec = vae.decoder(zi)
-                    loss += samplewise_loss_function(x, rec, zi, self.logvar, self.beta).sum()
+                    loss = samplewise_loss_function(x, rec, zi, self.logvar, self.beta).sum()
+                    loss.backward()
 
-                loss.backward()
                 optimizer.step()
 
                 # must operate on .data because PyTorch doesn't allow

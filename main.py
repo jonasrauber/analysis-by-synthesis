@@ -49,7 +49,6 @@ def main():
         'fraction_to_dismiss': args.fraction_to_dismiss,
         'lr': args.inference_lr,
         'radius': args.clip_to_sphere,
-        'custom_kernel': not args.no_custom_kernel,
     }
     robust_inference1 = RobustInference(model, device, n_samples=80, n_iterations=0, **kwargs)
     robust_inference2 = RobustInference(model, device, n_samples=8000, n_iterations=0, **kwargs)

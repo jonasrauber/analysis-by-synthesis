@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import torch
 
@@ -9,12 +10,28 @@ def samplewise_loss_function(x, rec_x, mu, logvar, beta):
     There can be varying number of additional dimensions before them!
     """
     input_size = int(np.prod(x.shape[-3:]))
-    # in-place because d can easily require huge amounts of memory;
-    # using a custom cuda kernel, we could combine diff, square and sum
-    # and avoid all the memory allocations
-    d = rec_x - x
-    d.pow_(2)
-    L2squared = d.sum((-1, -2, -3)) / input_size
+    if len(x.shape) == 5 and len(rec_x.shape) == 5 and x.shape[1] == 1 and rec_x.shape[0] == 1:
+        # alternative implementation that is much faster and more memory efficient
+        # when each sample in x needs to be compared to each sample in rec_x
+        assert x.shape[-3:] == rec_x.shape[-3:]
+        x = x.reshape(x.shape[0], input_size)
+        y = rec_x.reshape(rec_x.shape[1], input_size)
+
+        x2 = torch.norm(x, p=2, dim=-1, keepdim=True).pow(2)
+        y2 = torch.norm(y, p=2, dim=-1, keepdim=True).pow(2)
+        # note that we could cache the calculation of y2, but
+        # it's so fast that it doesn't matter
+
+        L2squared = x2 + y2.t() - 2 * torch.mm(x, y.t())
+        L2squared = L2squared / input_size
+    else:
+        if len(x.shape) != 4 or x.shape != rec_x.shape:
+            warnings.warn('samplewise_loss_function possibly not been optimized for this')
+            raise
+
+        d = rec_x - x
+        d.pow_(2)
+        L2squared = d.sum((-1, -2, -3)) / input_size
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(), dim=((-1, -2, -3))) / input_size
     # note that the KLD sum is over the latents, not over the input size
     return L2squared + beta * KLD
